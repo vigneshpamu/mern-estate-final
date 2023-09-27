@@ -1,11 +1,18 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import OAuth from '../components/OAuth'
+import { useSelector, useDispatch } from 'react-redux'
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from '../redux/user/userSlice'
 
 const SignUp = () => {
   const [formData, setFormData] = useState({})
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const { loading, error } = useSelector((state) => state.user)
+  const dispatch = useDispatch()
   const navigate = useNavigate()
   const handleChange = (e) => {
     setFormData({
@@ -16,7 +23,7 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      setLoading(true)
+      dispatch(signInStart())
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: {
@@ -27,16 +34,13 @@ const SignUp = () => {
       const data = await res.json()
       console.log(data)
       if (data.success === false) {
-        setError(data.message)
-        setLoading(false)
+        dispatch(signInFailure(data.message))
         return
       }
-      setLoading(false)
-      setError(null)
+      dispatch(signInSuccess(data))
       navigate('/')
     } catch (error) {
-      setLoading(false)
-      setError(error.message)
+      dispatch(signInFailure(error.message))
     }
   }
   console.log(formData)
@@ -76,6 +80,7 @@ const SignUp = () => {
         >
           {loading ? 'Loading' : 'Sign Up'}
         </button>
+        <OAuth />
         <div className="flex gap-2 mt-5">
           <p>Have an Account?</p>
           <Link to={'/sign-in'}>
