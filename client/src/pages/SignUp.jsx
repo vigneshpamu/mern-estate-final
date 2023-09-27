@@ -15,24 +15,29 @@ const SignUp = () => {
   }
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
-    const res = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    })
-
-    const data = await res.json()
-    if (data.success === false) {
-      setError(data.message)
+    try {
+      setLoading(true)
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+      const data = await res.json()
+      console.log(data)
+      if (data.success === false) {
+        setError(data.message)
+        setLoading(false)
+        return
+      }
       setLoading(false)
+      setError(null)
+      navigate('/')
+    } catch (error) {
+      setLoading(false)
+      setError(error.message)
     }
-    setLoading(false)
-    setError(null)
-    navigate('/')
-    console.log(data)
   }
   console.log(formData)
   return (
@@ -45,6 +50,7 @@ const SignUp = () => {
           className="border p-3 rounded-lg"
           id="username"
           onChange={handleChange}
+          required
         />
         <input
           type="email"
@@ -52,6 +58,7 @@ const SignUp = () => {
           className="border p-3 rounded-lg"
           id="email"
           onChange={handleChange}
+          required
         />
         <input
           type="text"
@@ -59,6 +66,7 @@ const SignUp = () => {
           className="border p-3 rounded-lg"
           id="password"
           onChange={handleChange}
+          required
         />
         <button
           type="submit"
